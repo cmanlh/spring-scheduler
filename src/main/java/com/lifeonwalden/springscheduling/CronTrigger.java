@@ -97,5 +97,4 @@ public class CronTrigger extends BaseTrigger {
   public String toString() {
     return this.sequenceGenerator.toString();
   }
-
 }
