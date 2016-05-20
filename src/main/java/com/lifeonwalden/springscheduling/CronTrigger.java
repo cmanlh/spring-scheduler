@@ -20,7 +20,6 @@ public class CronTrigger extends BaseTrigger {
 
   private String expression;
 
-
   /**
    * Build a {@link CronTrigger} from the pattern provided in the default time zone.
    * 
@@ -60,7 +59,6 @@ public class CronTrigger extends BaseTrigger {
     return this.expression;
   }
 
-
   /**
    * Determine the next execution time according to the given trigger context.
    * <p>
@@ -83,7 +81,6 @@ public class CronTrigger extends BaseTrigger {
     }
     return this.sequenceGenerator.next(date);
   }
-
 
   @Override
   public boolean equals(Object other) {
