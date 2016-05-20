@@ -1,13 +1,14 @@
 package com.lifeonwalden.springscheduling.monitor;
 
 import java.util.Date;
+import java.util.List;
 
 public class TaskEvent {
   private TaskEventType type;
 
   private String taskId;
 
-  private Throwable failReason;
+  private List<Throwable> failPrintList;
 
   private Date happendTime;
 
@@ -31,12 +32,12 @@ public class TaskEvent {
     return this;
   }
 
-  public Throwable getFailReason() {
-    return failReason;
+  public List<Throwable> getFailPrintList() {
+    return failPrintList;
   }
 
-  public TaskEvent setFailReason(Throwable failReason) {
-    this.failReason = failReason;
+  public TaskEvent setFailPrintList(List<Throwable> failPrintList) {
+    this.failPrintList = failPrintList;
 
     return this;
   }
