@@ -84,7 +84,6 @@ public class CronTrigger extends BaseTrigger {
     return this.sequenceGenerator.next(date);
   }
 
-
   @Override
   public boolean equals(Object other) {
     return (this == other
