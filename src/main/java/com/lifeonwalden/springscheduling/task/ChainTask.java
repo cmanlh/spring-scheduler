@@ -43,7 +43,7 @@ public class ChainTask extends Task {
   }
 
   @Override
-  public List<Throwable> doJob(Map<String, Object> param) {
+  protected List<Throwable> doJob(Map<String, Object> param) {
     List<Throwable> failPrintList = new ArrayList<>();
 
     for (Worker worker : workerList) {

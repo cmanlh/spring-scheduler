@@ -35,7 +35,7 @@ public class IndependentTask extends Task {
   }
 
   @Override
-  public List<Throwable> doJob(Map<String, Object> param) {
+  protected List<Throwable> doJob(Map<String, Object> param) {
     worker.doJob(param);
 
     return null;

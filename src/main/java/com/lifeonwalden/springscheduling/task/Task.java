@@ -87,14 +87,15 @@ public abstract class Task implements Runnable {
 
   public void run(Map<String, Object> param) {
     try {
+      Map<String, Object> _param = null != param ? param : new WeakHashMap<String, Object>(this.param);
       triggerContext.setLastActualExecutionTime(new Date());
       if (null != monitor) {
         monitor.notificate(new TaskEvent().setHappendTime(triggerContext.lastActualExecutionTime()).setTaskId(this.id)
-            .setType(TaskEventType.START));
+            .setType(TaskEventType.START).setParam(_param));
       }
 
       this.status = TaskStatusEnum.RUNNING;
-      List<Throwable> failPrintList = doJob(null != param ? param : new WeakHashMap<String, Object>(this.param));
+      List<Throwable> failPrintList = doJob(_param);
       this.status = TaskStatusEnum.COMPLETED;
 
       triggerContext.setLastCompletionTime(new Date());
@@ -113,7 +114,7 @@ public abstract class Task implements Runnable {
     }
   }
 
-  public abstract List<Throwable> doJob(Map<String, Object> param);
+  protected abstract List<Throwable> doJob(Map<String, Object> param);
 
   @Override
   public void run() {

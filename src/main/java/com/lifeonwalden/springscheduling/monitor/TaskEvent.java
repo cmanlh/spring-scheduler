@@ -14,6 +14,7 @@ package com.lifeonwalden.springscheduling.monitor;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class TaskEvent {
   private TaskEventType type;
@@ -23,6 +24,8 @@ public class TaskEvent {
   private List<Throwable> failPrintList;
 
   private Date happendTime;
+
+  private Map<String, Object> param;
 
   public TaskEventType getType() {
     return type;
@@ -60,6 +63,16 @@ public class TaskEvent {
 
   public TaskEvent setHappendTime(Date happendTime) {
     this.happendTime = happendTime;
+
+    return this;
+  }
+
+  public Map<String, Object> getParam() {
+    return param;
+  }
+
+  public TaskEvent setParam(Map<String, Object> param) {
+    this.param = param;
 
     return this;
   }

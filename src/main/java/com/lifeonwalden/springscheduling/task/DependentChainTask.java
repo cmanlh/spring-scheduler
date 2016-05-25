@@ -42,7 +42,7 @@ public class DependentChainTask extends Task {
   }
 
   @Override
-  public List<Throwable> doJob(Map<String, Object> param) {
+  protected List<Throwable> doJob(Map<String, Object> param) {
     for (Worker worker : workerList) {
       worker.doJob(param);
     }
