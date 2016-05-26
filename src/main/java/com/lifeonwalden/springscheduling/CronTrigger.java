@@ -35,6 +35,8 @@ public class CronTrigger extends BaseTrigger {
   /**
    * Build a {@link CronTrigger} from the pattern provided in the default time zone.
    * 
+   * @param id id for trigger
+   * @param name name for trigger
    * @param expression a space-separated list of time fields, following cron expression conventions
    */
   public CronTrigger(String id, String name, String expression) {
@@ -47,6 +49,8 @@ public class CronTrigger extends BaseTrigger {
   /**
    * Build a {@link CronTrigger} from the pattern provided in the given time zone.
    * 
+   * @param id id for trigger
+   * @param name name for trigger
    * @param expression a space-separated list of time fields, following cron expression conventions
    * @param timeZone a time zone in which the trigger times will be generated
    */
@@ -56,16 +60,25 @@ public class CronTrigger extends BaseTrigger {
     this.name = name;
   }
 
+  /**
+   * 
+   * @param expression a space-separated list of time fields, following cron expression conventions
+   */
   public void updateTrigger(String expression) {
     this.sequenceGenerator = new CronSequenceGenerator(expression);
   }
 
+  /**
+   * 
+   * @param expression a space-separated list of time fields, following cron expression conventions
+   * @param timeZone a time zone in which the trigger times will be generated
+   */
   public void updateTrigger(String expression, TimeZone timeZone) {
     this.sequenceGenerator = new CronSequenceGenerator(expression, timeZone);
   }
 
   /**
-   * Return the cron pattern that this trigger has been built with.
+   * @return the cron pattern that this trigger has been built with.
    */
   public String getExpression() {
     return this.expression;

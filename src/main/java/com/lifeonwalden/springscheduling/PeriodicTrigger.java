@@ -21,9 +21,8 @@ import org.springframework.util.Assert;
 /**
  * A trigger for periodic task execution. The period may be applied as either fixed-rate or fixed-delay, and an initial
  * delay value may also be configured. The default initial delay is 0, and the default behavior is fixed-delay (i.e. the
- * interval between successive executions is measured from each <emphasis>completion</emphasis> time). To measure the
- * interval between the scheduled <emphasis>start</emphasis> time of each execution instead, set the 'fixedRate'
- * property to {@code true}.
+ * interval between successive executions is measured from each <i>completion</i> time). To measure the interval between
+ * the scheduled <i>start</i> time of each execution instead, set the 'fixedRate' property to {@code true} .
  *
  * <p>
  * Note that the TaskScheduler interface already defines methods for scheduling tasks at fixed-rate or with fixed-delay.
@@ -47,6 +46,10 @@ public class PeriodicTrigger extends BaseTrigger {
 
   /**
    * Create a trigger with the given period in milliseconds.
+   * 
+   * @param id id
+   * @param name name
+   * @param period period
    */
   public PeriodicTrigger(String id, String name, long period) {
     this(id, name, period, null);
@@ -55,6 +58,11 @@ public class PeriodicTrigger extends BaseTrigger {
   /**
    * Create a trigger with the given period and time unit. The time unit will apply not only to the period but also to
    * any 'initialDelay' value, if configured on this Trigger later via {@link #setInitialDelay(long)}.
+   * 
+   * @param id id
+   * @param name name
+   * @param period period
+   * @param timeUnit timeUnit
    */
   public PeriodicTrigger(String id, String name, long period, TimeUnit timeUnit) {
     Assert.isTrue(period >= 0, "period must not be negative");
@@ -64,10 +72,19 @@ public class PeriodicTrigger extends BaseTrigger {
     this.name = name;
   }
 
+  /**
+   * 
+   * @param period period
+   */
   public void updateTrigger(long period) {
     updateTrigger(period, null);
   }
 
+  /**
+   * 
+   * @param period period
+   * @param timeUnit timeUnit
+   */
   public void updateTrigger(long period, TimeUnit timeUnit) {
     this.timeUnit = (timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS);
     this.period = this.timeUnit.toMillis(period);
@@ -77,6 +94,8 @@ public class PeriodicTrigger extends BaseTrigger {
   /**
    * Specify the delay for the initial execution. It will be evaluated in terms of this trigger's {@link TimeUnit}. If
    * no time unit was explicitly provided upon instantiation, the default is milliseconds.
+   * 
+   * @param initialDelay initialDelay
    */
   public void setInitialDelay(long initialDelay) {
     this.initialDelay = this.timeUnit.toMillis(initialDelay);
@@ -85,6 +104,8 @@ public class PeriodicTrigger extends BaseTrigger {
   /**
    * Specify whether the periodic interval should be measured between the scheduled start times rather than between
    * actual completion times. The latter, "fixed delay" behavior, is the default.
+   * 
+   * @param fixedRate fixedRate
    */
   public void setFixedRate(boolean fixedRate) {
     this.fixedRate = fixedRate;
