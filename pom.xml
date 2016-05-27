@@ -2,11 +2,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lifeonwalden</groupId>
 	<artifactId>spring-scheduler</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 	<name>spring-scheduler</name>
 	<description>A persistence scheduler system based on Spring framework</description>
 	<url>https://github.com/cmanlh/spring-scheduler</url>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
+	</parent>
 	<licenses>
 		<license>
 			<name>The Apache License, Version 2.0</name>
@@ -16,6 +21,8 @@
 	<scm>
 		<url>https://github.com/cmanlh/spring-scheduler.git</url>
 		<connection>scm:git:https://github.com/cmanlh/spring-scheduler.git</connection>
+		<developerConnection>scm:git:https://github.com/cmanlh/spring-scheduler.git</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
 	<developers>
 		<developer>
@@ -93,11 +100,11 @@
 	</build>
 	<distributionManagement>
 		<snapshotRepository>
-			<id>ossrh</id>
+			<id>sonatype-nexus-snapshots</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 		<repository>
-			<id>ossrh</id>
+			<id>sonatype-nexus-staging</id>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
 	</distributionManagement>
