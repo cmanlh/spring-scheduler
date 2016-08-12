@@ -55,6 +55,10 @@ public class CronBuilderTest {
 
     @Test
     public void testSecondError() {
-        CronBuilder.build().second(new In(Minute.M0, Minute.M36)).toCronExpression();
+        try {
+            CronBuilder.build().second(new In(Minute.M0, Minute.M36)).toCronExpression();
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
