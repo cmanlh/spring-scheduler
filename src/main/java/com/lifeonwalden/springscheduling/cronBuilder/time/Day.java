@@ -5,7 +5,7 @@ public enum Day implements CronTime {
 
     @Override
     public int toCronTime() {
-        return ordinal();
+        return ordinal() + 1;
     }
 
 }
