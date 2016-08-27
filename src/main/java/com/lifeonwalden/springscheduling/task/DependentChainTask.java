@@ -26,6 +26,8 @@ import com.lifeonwalden.springscheduling.monitor.Monitor;
 public class DependentChainTask extends Task {
   private List<Worker> workerList;
 
+  private int retryIndex = -1;
+
   public DependentChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor,
       List<Worker> workerList) {
     super(id, name, triggerContext, monitor);
@@ -43,8 +45,21 @@ public class DependentChainTask extends Task {
 
   @Override
   protected List<Throwable> doJob(Map<String, Object> param) {
-    for (Worker worker : workerList) {
-      worker.doJob(param);
+    int _retryIndex = 0;
+    if (canRetry && !alwaysFromBeginning && -1 < retryIndex) {
+      _retryIndex = retryIndex;
+    }
+
+    retryIndex = -1;
+    int size = workerList.size();
+    for (int i = _retryIndex; i < size; i++) {
+      try {
+        workerList.get(i).doJob(param);
+      } catch (Throwable e) {
+        retryIndex = i;
+
+        throw e;
+      }
     }
 
     return null;

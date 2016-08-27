@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+import com.lifeonwalden.springscheduling.concurrent.ThreadPoolTaskSchedulerWithRetry;
 import com.lifeonwalden.springscheduling.task.ChainTask;
 import com.lifeonwalden.springscheduling.task.DependentChainTask;
 import com.lifeonwalden.springscheduling.task.IndependentTask;
@@ -18,13 +18,21 @@ import com.lifeonwalden.springscheduling.task.Worker;
 public class TaskRunningTest {
   @Test
   public void runIndependentTask() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+    AtomicInteger counter = new AtomicInteger(0);
     IndependentTask task =
-        new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new WorkImpl());
+        new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
+
+          @Override
+          public void doJob(Map<String, Object> context) {
+            counter.incrementAndGet();
+
+          }
+        });
     scheduler.schedule(task, trigger);
 
     try {
@@ -36,11 +44,11 @@ public class TaskRunningTest {
 
   @Test
   public void runIndependentTaskWithCrush() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.setPoolSize(10);
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     IndependentTask task =
         new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
@@ -61,7 +69,7 @@ public class TaskRunningTest {
     scheduler.schedule(task, trigger);
 
     com.lifeonwalden.springscheduling.CronTrigger trigger2 =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger002", "CronTrigger002", "0-59/10 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger002", "CronTrigger002", "0-59/10 * * * * ?");
     TaskTriggerContext triggerContext2 = new TaskTriggerContext(trigger2);
     IndependentTask task2 =
         new IndependentTask("IndependentTask002", "IndependentTask002", triggerContext2, new Worker() {
@@ -90,10 +98,10 @@ public class TaskRunningTest {
 
   @Test
   public void runIndependentTaskWithError() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     IndependentTask task =
         new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
@@ -114,11 +122,44 @@ public class TaskRunningTest {
   }
 
   @Test
-  public void runIndependentTaskWithMonitor() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+  public void runIndependentTaskWithErrorWithRetry() {
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/15 * * 28 8 ?");
+    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+    IndependentTask task =
+        new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
+
+          @Override
+          public void doJob(Map<String, Object> context) {
+            System.out.println("START @" + new Date());
+            System.out.println("I am bad boy");
+            if (Math.random() * 10 > 3) {
+              System.out.println("ERROR @" + new Date());
+              throw new RuntimeException();
+            } else {
+              System.out.println("END @" + new Date());
+            }
+          }
+        });
+    task.setCanRetry(true);
+    task.setRetryAfter(10);
+    scheduler.schedule(task, trigger);
+
+    try {
+      Thread.sleep(120000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  public void runIndependentTaskWithMonitor() {
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+    scheduler.initialize();
+    com.lifeonwalden.springscheduling.CronTrigger trigger =
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext,
         new MonitorImpl(), new WorkImpl());
@@ -133,10 +174,10 @@ public class TaskRunningTest {
 
   @Test
   public void runIndependentTaskWithMonitorError() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext,
         new MonitorImpl(), new Worker() {
@@ -158,10 +199,10 @@ public class TaskRunningTest {
 
   @Test
   public void runChainTask() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -191,10 +232,10 @@ public class TaskRunningTest {
 
   @Test
   public void runChainTaskWithError() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -224,10 +265,10 @@ public class TaskRunningTest {
 
   @Test
   public void runChainTaskWithMonitor() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -257,10 +298,10 @@ public class TaskRunningTest {
 
   @Test
   public void runChainTaskWithMonitorWithError() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -291,10 +332,10 @@ public class TaskRunningTest {
 
   @Test
   public void runDependentChainTask() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -325,10 +366,10 @@ public class TaskRunningTest {
 
   @Test
   public void runDependentChainTaskWithError() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -359,10 +400,10 @@ public class TaskRunningTest {
 
   @Test
   public void runDependentChainTaskWithMonitor() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -392,10 +433,10 @@ public class TaskRunningTest {
 
   @Test
   public void runDependentChainTaskWithMonitorWithError() {
-    ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
     scheduler.initialize();
     com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * 27 8 ?");
+        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
     TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
     List<Worker> taskList = new ArrayList<Worker>();
     taskList.add(new Worker() {
@@ -410,7 +451,6 @@ public class TaskRunningTest {
       @Override
       public void doJob(Map<String, Object> context) {
         System.out.println("worker 002 is running.");
-
       }
     });
     DependentChainTask task =

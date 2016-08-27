@@ -104,7 +104,11 @@ public class CronTrigger extends BaseTrigger {
     } else {
       date = new Date();
     }
-    return this.sequenceGenerator.next(date);
+    if (date.getTime() > System.currentTimeMillis()) {
+      return date;
+    } else {
+      return this.sequenceGenerator.next(date);
+    }
   }
 
   @Override

@@ -32,6 +32,18 @@ public class TaskTriggerContext implements TriggerContext {
     this.trigger = trigger;
   }
 
+  /**
+   * Update this holder's state with the latest time values.
+   * @param lastScheduledExecutionTime last <i>scheduled</i> execution time
+   * @param lastActualExecutionTime last <i>actual</i> execution time
+   * @param lastCompletionTime last completion time
+   */
+  public void update(Date lastScheduledExecutionTime, Date lastActualExecutionTime, Date lastCompletionTime) {
+      this.lastScheduledExecutionTime = lastScheduledExecutionTime;
+      this.lastActualExecutionTime = lastActualExecutionTime;
+      this.lastCompletionTime = lastCompletionTime;
+  }
+  
   public TaskTriggerContext setLastScheduledExecutionTime(Date lastScheduledExecutionTime) {
     this.lastScheduledExecutionTime = lastScheduledExecutionTime;
 

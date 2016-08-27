@@ -27,6 +27,8 @@ import com.lifeonwalden.springscheduling.monitor.Monitor;
 public class ChainTask extends Task {
   private List<Worker> workerList;
 
+  private List<Worker> retryList = new ArrayList<Worker>();
+
   public ChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor,
       List<Worker> workerList) {
     super(id, name, triggerContext, monitor);
@@ -46,14 +48,21 @@ public class ChainTask extends Task {
   protected List<Throwable> doJob(Map<String, Object> param) {
     List<Throwable> failPrintList = new ArrayList<>();
 
-    for (Worker worker : workerList) {
+    List<Worker> _workerList = workerList;
+    if (canRetry && !alwaysFromBeginning && !retryList.isEmpty()) {
+      _workerList = retryList;
+    }
+
+    retryList = new ArrayList<Worker>();
+    for (Worker worker : _workerList) {
       try {
         worker.doJob(param);
       } catch (Throwable e) {
+        retryList.add(worker);
+
         failPrintList.add(e);
       }
     }
-
     return failPrintList.isEmpty() ? null : failPrintList;
   }
 

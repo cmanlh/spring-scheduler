@@ -25,6 +25,8 @@ public class TaskEvent {
 
   private Date happendTime;
 
+  private Date nextExecutionTime;
+
   private Map<String, Object> param;
 
   public TaskEventType getType() {
@@ -63,6 +65,16 @@ public class TaskEvent {
 
   public TaskEvent setHappendTime(Date happendTime) {
     this.happendTime = happendTime;
+
+    return this;
+  }
+
+  public Date getNextExecutionTime() {
+    return nextExecutionTime;
+  }
+
+  public TaskEvent setNextExecutionTime(Date nextExecutionTime) {
+    this.nextExecutionTime = nextExecutionTime;
 
     return this;
   }
