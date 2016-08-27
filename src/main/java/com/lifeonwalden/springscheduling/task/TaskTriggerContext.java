@@ -20,53 +20,53 @@ import com.lifeonwalden.springscheduling.BaseTrigger;
 
 public class TaskTriggerContext implements TriggerContext {
 
-    private Date lastScheduledExecutionTime;
+  private Date lastScheduledExecutionTime;
 
-    private Date lastActualExecutionTime;
+  private Date lastActualExecutionTime;
 
-    private Date lastCompletionTime;
+  private Date lastCompletionTime;
 
-    private BaseTrigger trigger;
+  private BaseTrigger trigger;
 
-    public TaskTriggerContext(BaseTrigger trigger) {
-        this.trigger = trigger;
-    }
+  public TaskTriggerContext(BaseTrigger trigger) {
+    this.trigger = trigger;
+  }
 
-    public TaskTriggerContext setLastScheduledExecutionTime(Date lastScheduledExecutionTime) {
-        this.lastScheduledExecutionTime = lastScheduledExecutionTime;
+  public TaskTriggerContext setLastScheduledExecutionTime(Date lastScheduledExecutionTime) {
+    this.lastScheduledExecutionTime = lastScheduledExecutionTime;
 
-        return this;
-    }
+    return this;
+  }
 
-    public TaskTriggerContext setLastActualExecutionTime(Date lastActualExecutionTime) {
-        this.lastActualExecutionTime = lastActualExecutionTime;
+  public TaskTriggerContext setLastActualExecutionTime(Date lastActualExecutionTime) {
+    this.lastActualExecutionTime = lastActualExecutionTime;
 
-        return this;
-    }
+    return this;
+  }
 
-    public TaskTriggerContext setLastCompletionTime(Date lastCompletionTime) {
-        this.lastCompletionTime = lastCompletionTime;
+  public TaskTriggerContext setLastCompletionTime(Date lastCompletionTime) {
+    this.lastCompletionTime = lastCompletionTime;
 
-        return this;
-    }
+    return this;
+  }
 
-    public BaseTrigger getTrigger() {
-        return trigger;
-    }
+  public BaseTrigger getTrigger() {
+    return trigger;
+  }
 
-    @Override
-    public Date lastScheduledExecutionTime() {
-        return this.lastScheduledExecutionTime;
-    }
+  @Override
+  public Date lastScheduledExecutionTime() {
+    return this.lastScheduledExecutionTime;
+  }
 
-    @Override
-    public Date lastActualExecutionTime() {
-        return this.lastActualExecutionTime;
-    }
+  @Override
+  public Date lastActualExecutionTime() {
+    return this.lastActualExecutionTime;
+  }
 
-    @Override
-    public Date lastCompletionTime() {
-        return this.lastCompletionTime;
-    }
+  @Override
+  public Date lastCompletionTime() {
+    return this.lastCompletionTime;
+  }
 
 }

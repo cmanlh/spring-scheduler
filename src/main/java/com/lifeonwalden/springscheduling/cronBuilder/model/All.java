@@ -9,14 +9,14 @@ package com.lifeonwalden.springscheduling.cronBuilder.model;
 public class All implements FieldDefinition {
 
 
-    @Override
-    public String toExpression() {
-        return "*";
-    }
+  @Override
+  public String toExpression() {
+    return "*";
+  }
 
-    @Override
-    public boolean isValid(Class<?> clazz) {
-        return true;
-    }
+  @Override
+  public boolean isValid(Class<?> clazz) {
+    return true;
+  }
 
 }

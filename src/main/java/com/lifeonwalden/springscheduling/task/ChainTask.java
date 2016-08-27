@@ -25,35 +25,36 @@ import com.lifeonwalden.springscheduling.monitor.Monitor;
  *
  */
 public class ChainTask extends Task {
-    private List<Worker> workerList;
+  private List<Worker> workerList;
 
-    public ChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor, List<Worker> workerList) {
-        super(id, name, triggerContext, monitor);
-        this.workerList = workerList;
+  public ChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor,
+      List<Worker> workerList) {
+    super(id, name, triggerContext, monitor);
+    this.workerList = workerList;
+  }
+
+  public ChainTask(String id, String name, TaskTriggerContext triggerContext, List<Worker> workerList) {
+    super(id, name, triggerContext);
+    this.workerList = workerList;
+  }
+
+  public List<Worker> getWorkerList() {
+    return workerList;
+  }
+
+  @Override
+  protected List<Throwable> doJob(Map<String, Object> param) {
+    List<Throwable> failPrintList = new ArrayList<>();
+
+    for (Worker worker : workerList) {
+      try {
+        worker.doJob(param);
+      } catch (Throwable e) {
+        failPrintList.add(e);
+      }
     }
 
-    public ChainTask(String id, String name, TaskTriggerContext triggerContext, List<Worker> workerList) {
-        super(id, name, triggerContext);
-        this.workerList = workerList;
-    }
-
-    public List<Worker> getWorkerList() {
-        return workerList;
-    }
-
-    @Override
-    protected List<Throwable> doJob(Map<String, Object> param) {
-        List<Throwable> failPrintList = new ArrayList<>();
-
-        for (Worker worker : workerList) {
-            try {
-                worker.doJob(param);
-            } catch (Throwable e) {
-                failPrintList.add(e);
-            }
-        }
-
-        return failPrintList.isEmpty() ? null : failPrintList;
-    }
+    return failPrintList.isEmpty() ? null : failPrintList;
+  }
 
 }

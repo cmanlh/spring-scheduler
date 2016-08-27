@@ -7,36 +7,36 @@ package com.lifeonwalden.springscheduling.cronBuilder.model;
  *
  */
 public class Per implements FieldDefinition {
-    private FieldDefinition field;
+  private FieldDefinition field;
 
-    private int step;
+  private int step;
 
-    public Per(Between field, int step) {
-        if (step < 2) {
-            throw new RuntimeException("Invalid step value");
-        }
-
-        this.step = step;
-        this.field = field;
+  public Per(Between field, int step) {
+    if (step < 2) {
+      throw new RuntimeException("Invalid step value");
     }
 
-    public Per(All field, int step) {
-        if (step < 2) {
-            throw new RuntimeException("Invalid step value");
-        }
+    this.step = step;
+    this.field = field;
+  }
 
-        this.step = step;
-        this.field = field;
+  public Per(All field, int step) {
+    if (step < 2) {
+      throw new RuntimeException("Invalid step value");
     }
 
-    @Override
-    public String toExpression() {
-        return field.toExpression() + "/" + step;
-    }
+    this.step = step;
+    this.field = field;
+  }
 
-    @Override
-    public boolean isValid(Class<?> clazz) {
-        return field.isValid(clazz);
-    }
+  @Override
+  public String toExpression() {
+    return field.toExpression() + "/" + step;
+  }
+
+  @Override
+  public boolean isValid(Class<?> clazz) {
+    return field.isValid(clazz);
+  }
 
 }

@@ -9,25 +9,25 @@ import com.lifeonwalden.springscheduling.cronBuilder.time.CronTime;
  *
  */
 public class Between implements FieldDefinition {
-    private CronTime start;
-    private CronTime end;
+  private CronTime start;
+  private CronTime end;
 
-    public Between(CronTime start, CronTime end) {
-        if (start.toCronTime() >= end.toCronTime()) {
-            throw new RuntimeException("Invalid range.");
-        }
-
-        this.start = start;
-        this.end = end;
+  public Between(CronTime start, CronTime end) {
+    if (start.toCronTime() >= end.toCronTime()) {
+      throw new RuntimeException("Invalid range.");
     }
 
-    @Override
-    public String toExpression() {
-        return Integer.toString(start.toCronTime()) + "-" + Integer.toString(end.toCronTime());
-    }
+    this.start = start;
+    this.end = end;
+  }
 
-    @Override
-    public boolean isValid(Class<?> clazz) {
-        return clazz.isInstance(start) && clazz.isInstance(end);
-    }
+  @Override
+  public String toExpression() {
+    return Integer.toString(start.toCronTime()) + "-" + Integer.toString(end.toCronTime());
+  }
+
+  @Override
+  public boolean isValid(Class<?> clazz) {
+    return clazz.isInstance(start) && clazz.isInstance(end);
+  }
 }

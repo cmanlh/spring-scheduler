@@ -9,19 +9,19 @@ import com.lifeonwalden.springscheduling.cronBuilder.time.CronTime;
  *
  */
 public class When implements FieldDefinition {
-    private CronTime time;
+  private CronTime time;
 
-    public When(CronTime time) {
-        this.time = time;
-    }
+  public When(CronTime time) {
+    this.time = time;
+  }
 
-    @Override
-    public String toExpression() {
-        return Integer.toString(time.toCronTime());
-    }
+  @Override
+  public String toExpression() {
+    return Integer.toString(time.toCronTime());
+  }
 
-    @Override
-    public boolean isValid(Class<?> clazz) {
-        return clazz.isInstance(time);
-    }
+  @Override
+  public boolean isValid(Class<?> clazz) {
+    return clazz.isInstance(time);
+  }
 }

@@ -17,64 +17,64 @@ import java.util.List;
 import java.util.Map;
 
 public class TaskEvent {
-    private TaskEventType type;
+  private TaskEventType type;
 
-    private String taskId;
+  private String taskId;
 
-    private List<Throwable> failPrintList;
+  private List<Throwable> failPrintList;
 
-    private Date happendTime;
+  private Date happendTime;
 
-    private Map<String, Object> param;
+  private Map<String, Object> param;
 
-    public TaskEventType getType() {
-        return type;
-    }
+  public TaskEventType getType() {
+    return type;
+  }
 
-    public TaskEvent setType(TaskEventType type) {
-        this.type = type;
+  public TaskEvent setType(TaskEventType type) {
+    this.type = type;
 
-        return this;
-    }
+    return this;
+  }
 
-    public String getTaskId() {
-        return taskId;
-    }
+  public String getTaskId() {
+    return taskId;
+  }
 
-    public TaskEvent setTaskId(String taskId) {
-        this.taskId = taskId;
+  public TaskEvent setTaskId(String taskId) {
+    this.taskId = taskId;
 
-        return this;
-    }
+    return this;
+  }
 
-    public List<Throwable> getFailPrintList() {
-        return failPrintList;
-    }
+  public List<Throwable> getFailPrintList() {
+    return failPrintList;
+  }
 
-    public TaskEvent setFailPrintList(List<Throwable> failPrintList) {
-        this.failPrintList = failPrintList;
+  public TaskEvent setFailPrintList(List<Throwable> failPrintList) {
+    this.failPrintList = failPrintList;
 
-        return this;
-    }
+    return this;
+  }
 
-    public Date getHappendTime() {
-        return happendTime;
-    }
+  public Date getHappendTime() {
+    return happendTime;
+  }
 
-    public TaskEvent setHappendTime(Date happendTime) {
-        this.happendTime = happendTime;
+  public TaskEvent setHappendTime(Date happendTime) {
+    this.happendTime = happendTime;
 
-        return this;
-    }
+    return this;
+  }
 
-    public Map<String, Object> getParam() {
-        return param;
-    }
+  public Map<String, Object> getParam() {
+    return param;
+  }
 
-    public TaskEvent setParam(Map<String, Object> param) {
-        this.param = param;
+  public TaskEvent setParam(Map<String, Object> param) {
+    this.param = param;
 
-        return this;
-    }
+    return this;
+  }
 
 }
