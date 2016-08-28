@@ -157,7 +157,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
     }
   }
 
-  public void _run(Map<String, Object> param) {
+  private void _run(Map<String, Object> param) {
     Date nextExecutionTime = null, actualExecutionTime = null, completionTime = null;
     List<Throwable> failPrintList = null;
     try {
@@ -198,7 +198,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
     }
   }
 
-  protected abstract List<Throwable> doJob(Map<String, Object> param);
+  public abstract List<Throwable> doJob(Map<String, Object> param);
 
   @Override
   public void run() {
