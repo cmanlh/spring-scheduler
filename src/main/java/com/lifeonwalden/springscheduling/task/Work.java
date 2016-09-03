@@ -74,7 +74,7 @@ public class Work implements Runnable {
     try {
       this.worker.doJob(param);
     } catch (Throwable e) {
-      logger.error("Work is failed : {}", this.id);
+      logger.error("Work is failed : {} {}", this.name, this.id);
 
       status = TaskStatusEnum.FAILED;
       error = e;
