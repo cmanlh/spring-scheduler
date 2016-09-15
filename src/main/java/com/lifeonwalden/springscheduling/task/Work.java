@@ -49,6 +49,10 @@ public class Work implements Runnable {
     return monitor;
   }
 
+  public Worker getWorker() {
+    return worker;
+  }
+
   public Map<String, Object> getParam() {
     return param;
   }
