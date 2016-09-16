@@ -45,8 +45,8 @@ public class ChainTask extends Task {
   }
 
   @Override
-  public List<Throwable> doJob(Map<String, Object> param) {
-    List<Throwable> failPrintList = new ArrayList<>();
+  public List<String> doJob(Map<String, Object> param) {
+    List<String> failPrintList = new ArrayList<>();
 
     List<Worker> _workerList = workerList;
     if (canRetry && !alwaysFromBeginning && !retryList.isEmpty()) {
@@ -60,7 +60,7 @@ public class ChainTask extends Task {
       } catch (Throwable e) {
         retryList.add(worker);
 
-        failPrintList.add(e);
+        failPrintList.add(e.getMessage());
       }
     }
     return failPrintList.isEmpty() ? null : failPrintList;

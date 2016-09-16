@@ -21,7 +21,11 @@ public class TaskEvent {
 
   private String taskId;
 
-  private List<Throwable> failPrintList;
+  private List<String> failPrintList;
+
+  private Date startTime;
+
+  private Date endTime;
 
   private Date happendTime;
 
@@ -49,12 +53,32 @@ public class TaskEvent {
     return this;
   }
 
-  public List<Throwable> getFailPrintList() {
+  public List<String> getFailPrintList() {
     return failPrintList;
   }
 
-  public TaskEvent setFailPrintList(List<Throwable> failPrintList) {
+  public TaskEvent setFailPrintList(List<String> failPrintList) {
     this.failPrintList = failPrintList;
+
+    return this;
+  }
+
+  public Date getStartTime() {
+    return startTime;
+  }
+
+  public TaskEvent setStartTime(Date startTime) {
+    this.startTime = startTime;
+
+    return this;
+  }
+
+  public Date getEndTime() {
+    return endTime;
+  }
+
+  public TaskEvent setEndTime(Date endTime) {
+    this.endTime = endTime;
 
     return this;
   }

@@ -68,9 +68,10 @@ public class Work implements Runnable {
 
   @Override
   public void run() {
+    TaskEvent startTaskEvent = new TaskEvent();
     if (null != monitor) {
       monitor.notificate(
-          new TaskEvent().setHappendTime(new Date()).setTaskId(this.id).setType(TaskEventType.START).setParam(param));
+          startTaskEvent.setHappendTime(new Date()).setTaskId(this.id).setType(TaskEventType.START).setParam(param));
     }
 
     TaskStatusEnum status = TaskStatusEnum.COMPLETED;
@@ -89,9 +90,11 @@ public class Work implements Runnable {
       event.setHappendTime(new Date()).setTaskId(this.id);
 
       if (TaskStatusEnum.COMPLETED == status) {
-        event.setType(TaskEventType.COMPELETE);
+        event.setType(TaskEventType.COMPELETE).setStartTime(startTaskEvent.getHappendTime())
+            .setParam(startTaskEvent.getParam());
       } else {
-        event.setType(TaskEventType.FAIL).setFailPrintList(Arrays.asList(error));
+        event.setType(TaskEventType.FAIL).setFailPrintList(Arrays.asList(error.getMessage()))
+            .setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam());
       }
 
       monitor.notificate(event);

@@ -44,7 +44,7 @@ public class DependentChainTask extends Task {
   }
 
   @Override
-  public List<Throwable> doJob(Map<String, Object> param) {
+  public List<String> doJob(Map<String, Object> param) {
     int _retryIndex = 0;
     if (canRetry && !alwaysFromBeginning && -1 < retryIndex) {
       _retryIndex = retryIndex;

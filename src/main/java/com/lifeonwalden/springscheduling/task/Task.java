@@ -159,13 +159,14 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
 
   private void _run(Map<String, Object> param) {
     Date nextExecutionTime = null, actualExecutionTime = null, completionTime = null;
-    List<Throwable> failPrintList = null;
+    List<String> failPrintList = null;
+    TaskEvent startTaskEvent = new TaskEvent();
     try {
       Map<String, Object> _param = null != param ? param
           : (null == this.param ? new WeakHashMap<String, Object>() : new WeakHashMap<String, Object>(this.param));
       actualExecutionTime = new Date();
       if (null != monitor) {
-        monitor.notificate(new TaskEvent().setHappendTime(triggerContext.lastActualExecutionTime()).setTaskId(this.id)
+        monitor.notificate(startTaskEvent.setHappendTime(actualExecutionTime).setTaskId(this.id)
             .setType(TaskEventType.START).setParam(_param));
       }
 
@@ -175,7 +176,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
     } catch (Throwable e) {
       this.status = TaskStatusEnum.FAILED;
 
-      failPrintList = Arrays.asList(e);
+      failPrintList = Arrays.asList(e.getMessage());
     }
     completionTime = new Date();
     nextExecutionTime = getTrigger().nextExecutionTime(triggerContext);
@@ -187,7 +188,8 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
     if (null != monitor) {
       monitor.notificate(new TaskEvent().setHappendTime(new Date()).setTaskId(this.id)
           .setType(TaskStatusEnum.COMPLETED == this.status ? TaskEventType.COMPELETE : TaskEventType.FAIL)
-          .setFailPrintList(failPrintList).setNextExecutionTime(nextExecutionTime));
+          .setFailPrintList(failPrintList).setNextExecutionTime(nextExecutionTime)
+          .setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam()));
     }
 
     synchronized (this.triggerContextMonitor) {
@@ -198,7 +200,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
     }
   }
 
-  public abstract List<Throwable> doJob(Map<String, Object> param);
+  public abstract List<String> doJob(Map<String, Object> param);
 
   @Override
   public void run() {
