@@ -18,26 +18,27 @@ import java.util.Map;
 import com.lifeonwalden.springscheduling.monitor.Monitor;
 
 public class IndependentTask extends Task {
-  private Worker worker;
 
-  public IndependentTask(String id, String name, TaskTriggerContext triggerContext, Worker worker) {
-    super(id, name, triggerContext);
-    this.worker = worker;
-  }
+    private Worker worker;
 
-  public IndependentTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor, Worker worker) {
-    super(id, name, triggerContext, monitor);
-    this.worker = worker;
-  }
+    public IndependentTask(String id, String name, TaskTriggerContext triggerContext, Worker worker) {
+        super(id, name, triggerContext);
+        this.worker = worker;
+    }
 
-  public Worker getWorker() {
-    return worker;
-  }
+    public IndependentTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor, Worker worker) {
+        super(id, name, triggerContext, monitor);
+        this.worker = worker;
+    }
 
-  @Override
-  public List<String> doJob(Map<String, Object> param) {
-    worker.doJob(param);
+    public Worker getWorker() {
+        return worker;
+    }
 
-    return null;
-  }
+    @Override
+    public List<String> doJob(Map<String, Object> param) {
+        worker.doJob(param);
+
+        return null;
+    }
 }

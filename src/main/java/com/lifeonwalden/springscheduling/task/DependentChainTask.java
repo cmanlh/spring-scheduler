@@ -15,6 +15,9 @@ package com.lifeonwalden.springscheduling.task;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.lifeonwalden.springscheduling.monitor.Monitor;
 
 /**
@@ -24,45 +27,47 @@ import com.lifeonwalden.springscheduling.monitor.Monitor;
  *
  */
 public class DependentChainTask extends Task {
-  private List<Worker> workerList;
+    private final static Logger logger = LogManager.getLogger(DependentChainTask.class);
 
-  private int retryIndex = -1;
+    private List<Worker> workerList;
 
-  public DependentChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor,
-      List<Worker> workerList) {
-    super(id, name, triggerContext, monitor);
-    this.workerList = workerList;
-  }
+    private int retryIndex = -1;
 
-  public DependentChainTask(String id, String name, TaskTriggerContext triggerContext, List<Worker> workerList) {
-    super(id, name, triggerContext);
-    this.workerList = workerList;
-  }
-
-  public List<Worker> getWorkerList() {
-    return workerList;
-  }
-
-  @Override
-  public List<String> doJob(Map<String, Object> param) {
-    int _retryIndex = 0;
-    if (canRetry && !alwaysFromBeginning && -1 < retryIndex) {
-      _retryIndex = retryIndex;
+    public DependentChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor, List<Worker> workerList) {
+        super(id, name, triggerContext, monitor);
+        this.workerList = workerList;
     }
 
-    retryIndex = -1;
-    int size = workerList.size();
-    for (int i = _retryIndex; i < size; i++) {
-      try {
-        workerList.get(i).doJob(param);
-      } catch (Throwable e) {
-        retryIndex = i;
-
-        throw e;
-      }
+    public DependentChainTask(String id, String name, TaskTriggerContext triggerContext, List<Worker> workerList) {
+        super(id, name, triggerContext);
+        this.workerList = workerList;
     }
 
-    return null;
-  }
+    public List<Worker> getWorkerList() {
+        return workerList;
+    }
+
+    @Override
+    public List<String> doJob(Map<String, Object> param) {
+        int _retryIndex = 0;
+        if (canRetry && !alwaysFromBeginning && -1 < retryIndex) {
+            _retryIndex = retryIndex;
+        }
+
+        retryIndex = -1;
+        int size = workerList.size();
+        for (int i = _retryIndex; i < size; i++) {
+            try {
+                workerList.get(i).doJob(param);
+            } catch (Throwable e) {
+                logger.error("Work failed", e);
+
+                retryIndex = i;
+                throw e;
+            }
+        }
+
+        return null;
+    }
 
 }

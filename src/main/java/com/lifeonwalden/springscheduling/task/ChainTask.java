@@ -16,7 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.lifeonwalden.springscheduling.monitor.Monitor;
+import com.lifeonwalden.springscheduling.util.ExceptionUtil;
 
 /**
  * worker do the job one after another, but no dependences between them
@@ -25,45 +29,47 @@ import com.lifeonwalden.springscheduling.monitor.Monitor;
  *
  */
 public class ChainTask extends Task {
-  private List<Worker> workerList;
+    private final static Logger logger = LogManager.getLogger(ChainTask.class);
 
-  private List<Worker> retryList = new ArrayList<Worker>();
+    private List<Worker> workerList;
 
-  public ChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor,
-      List<Worker> workerList) {
-    super(id, name, triggerContext, monitor);
-    this.workerList = workerList;
-  }
+    private List<Worker> retryList = new ArrayList<Worker>();
 
-  public ChainTask(String id, String name, TaskTriggerContext triggerContext, List<Worker> workerList) {
-    super(id, name, triggerContext);
-    this.workerList = workerList;
-  }
-
-  public List<Worker> getWorkerList() {
-    return workerList;
-  }
-
-  @Override
-  public List<String> doJob(Map<String, Object> param) {
-    List<String> failPrintList = new ArrayList<>();
-
-    List<Worker> _workerList = workerList;
-    if (canRetry && !alwaysFromBeginning && !retryList.isEmpty()) {
-      _workerList = retryList;
+    public ChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor, List<Worker> workerList) {
+        super(id, name, triggerContext, monitor);
+        this.workerList = workerList;
     }
 
-    retryList = new ArrayList<Worker>();
-    for (Worker worker : _workerList) {
-      try {
-        worker.doJob(param);
-      } catch (Throwable e) {
-        retryList.add(worker);
-
-        failPrintList.add(e.getMessage());
-      }
+    public ChainTask(String id, String name, TaskTriggerContext triggerContext, List<Worker> workerList) {
+        super(id, name, triggerContext);
+        this.workerList = workerList;
     }
-    return failPrintList.isEmpty() ? null : failPrintList;
-  }
+
+    public List<Worker> getWorkerList() {
+        return workerList;
+    }
+
+    @Override
+    public List<String> doJob(Map<String, Object> param) {
+        List<String> failPrintList = new ArrayList<>();
+
+        List<Worker> _workerList = workerList;
+        if (canRetry && !alwaysFromBeginning && !retryList.isEmpty()) {
+            _workerList = retryList;
+        }
+
+        retryList = new ArrayList<Worker>();
+        for (Worker worker : _workerList) {
+            try {
+                worker.doJob(param);
+            } catch (Throwable e) {
+                logger.error("Work failed", e);
+
+                retryList.add(worker);
+                failPrintList.add(ExceptionUtil.getStackTrace(e));
+            }
+        }
+        return failPrintList.isEmpty() ? null : failPrintList;
+    }
 
 }
