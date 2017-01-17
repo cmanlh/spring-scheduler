@@ -158,6 +158,8 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
                 return null;
             }
             long initialDelay = scheduledExecutionTime.getTime() - System.currentTimeMillis();
+
+            logger.info("Schedule task {} run @ {}", this.name, scheduledExecutionTime.toInstant().toString());
             this.currentFuture = this.executor.schedule(this, initialDelay, TimeUnit.MILLISECONDS);
             return this;
         }
