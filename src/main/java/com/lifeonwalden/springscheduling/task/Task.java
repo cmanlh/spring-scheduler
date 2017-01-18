@@ -27,6 +27,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,7 +36,6 @@ import com.lifeonwalden.springscheduling.BaseTrigger;
 import com.lifeonwalden.springscheduling.monitor.Monitor;
 import com.lifeonwalden.springscheduling.monitor.TaskEvent;
 import com.lifeonwalden.springscheduling.monitor.TaskEventType;
-import com.lifeonwalden.springscheduling.util.ExceptionUtil;
 
 public abstract class Task implements Runnable, ScheduledFuture<Object> {
     private final static Logger logger = LogManager.getLogger(DependentChainTask.class);
@@ -159,7 +160,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
             }
             long initialDelay = scheduledExecutionTime.getTime() - System.currentTimeMillis();
 
-            logger.info("Schedule task {} run @ {}", this.name, scheduledExecutionTime.toInstant().toString());
+            logger.info("Schedule task [{}] run @ {}", this.name, scheduledExecutionTime.toString());
             this.currentFuture = this.executor.schedule(this, initialDelay, TimeUnit.MILLISECONDS);
             return this;
         }
@@ -180,14 +181,19 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
             }
 
             this.status = TaskStatusEnum.RUNNING;
+            logger.info("Task [{}] Start", this.name);
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
             failPrintList = doJob(_param);
+            stopWatch.stop();
+            logger.info("Task [{}] End, the task cost time :  {}", this.name, stopWatch.getTime());
             this.status = TaskStatusEnum.COMPLETED;
         } catch (Throwable e) {
             logger.error("Task failed", e);
 
             this.status = TaskStatusEnum.FAILED;
 
-            failPrintList = Arrays.asList(ExceptionUtil.getStackTrace(e));
+            failPrintList = Arrays.asList(ExceptionUtils.getStackTrace(e));
         }
         completionTime = new Date();
         nextExecutionTime = getTrigger().nextExecutionTime(triggerContext);

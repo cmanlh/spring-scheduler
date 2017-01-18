@@ -15,9 +15,14 @@ package com.lifeonwalden.springscheduling.task;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.lifeonwalden.springscheduling.monitor.Monitor;
 
 public class IndependentTask extends Task {
+    private final static Logger logger = LogManager.getLogger(IndependentTask.class);
 
     private Worker worker;
 
@@ -37,7 +42,13 @@ public class IndependentTask extends Task {
 
     @Override
     public List<String> doJob(Map<String, Object> param) {
+        String clzName = worker.getClass().getSimpleName();
+        logger.info("Worker [{}] Start", clzName);
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         worker.doJob(param);
+        stopWatch.stop();
+        logger.info("Worker [{}] End, the task cost time :  {}", clzName, stopWatch.getTime());
 
         return null;
     }

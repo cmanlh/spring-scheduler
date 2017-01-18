@@ -57,7 +57,7 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
     }
 
     public ScheduledFuture<?> schedule(Task task) {
-        logger.info("Load task {}", task.getName());
+        logger.info("Load task [{}]", task.getName());
 
         ScheduledThreadPoolExecutor executor = getScheduledThreadPoolExecutor();
         task.setExecutor(executor);
@@ -66,7 +66,7 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
     }
 
     public void addWork(Work work) {
-        logger.info("Load work {}", work.getName());
+        logger.info("Load work [{}]", work.getName());
 
         this.workMap.put(work.getId(), work);
     }
@@ -81,7 +81,7 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
     public void execute(String taskId, Map<String, Object> param, boolean async) {
         Work work = null;
         if (null == taskId || taskId.length() == 0 || (work = this.workMap.get(taskId)) == null) {
-            logger.error("Can't find task for {}", taskId);
+            logger.error("Can't find task for [{}]", taskId);
 
             return;
         }

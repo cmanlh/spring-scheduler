@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.MessageFormatMessage;
@@ -11,7 +12,6 @@ import org.apache.logging.log4j.message.MessageFormatMessage;
 import com.lifeonwalden.springscheduling.monitor.Monitor;
 import com.lifeonwalden.springscheduling.monitor.TaskEvent;
 import com.lifeonwalden.springscheduling.monitor.TaskEventType;
-import com.lifeonwalden.springscheduling.util.ExceptionUtil;
 
 /**
  * 临时性工作，一般手动触发用于解决一些非经常性事务工作
@@ -80,7 +80,7 @@ public class Work implements Runnable {
         try {
             this.worker.doJob(param);
         } catch (Throwable e) {
-            logger.error(new MessageFormatMessage("Work is failed : {} {}", this.name, this.id), e);
+            logger.error(new MessageFormatMessage("Work is failed : [{}] {}", this.name, this.id), e);
 
             status = TaskStatusEnum.FAILED;
             error = e;
@@ -93,7 +93,7 @@ public class Work implements Runnable {
             if (TaskStatusEnum.COMPLETED == status) {
                 event.setType(TaskEventType.COMPELETE).setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam());
             } else {
-                event.setType(TaskEventType.FAIL).setFailPrintList(Arrays.asList(ExceptionUtil.getStackTrace(error)))
+                event.setType(TaskEventType.FAIL).setFailPrintList(Arrays.asList(ExceptionUtils.getStackTrace(error)))
                                 .setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam());
             }
 

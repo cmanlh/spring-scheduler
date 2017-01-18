@@ -16,585 +16,561 @@ import com.lifeonwalden.springscheduling.task.TaskTriggerContext;
 import com.lifeonwalden.springscheduling.task.Worker;
 
 public class TaskRunningTest {
-  @Test
-  public void runIndependentTask() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    AtomicInteger counter = new AtomicInteger(0);
-    IndependentTask task =
-        new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
+    @Test
+    public void runIndependentTask() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        AtomicInteger counter = new AtomicInteger(0);
+        IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
 
-          @Override
-          public void doJob(Map<String, Object> context) {
-            counter.incrementAndGet();
+            @Override
+            public void doJob(Map<String, Object> context) {
+                counter.incrementAndGet();
 
-          }
-        });
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runIndependentTaskWithCrush() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    scheduler.setPoolSize(10);
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    IndependentTask task =
-        new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
-
-          @Override
-          public void doJob(Map<String, Object> context) {
-            long id = System.currentTimeMillis();
-            System.out.println(id + " START @" + new Date());
-            System.out.println("worker is running");
-            try {
-              Thread.sleep(new Double(Math.random() * 50000).longValue());
-            } catch (InterruptedException e) {
-              e.printStackTrace();
             }
-            System.out.println(id + " END @" + new Date());
-          }
         });
-    scheduler.schedule(task);
+        scheduler.schedule(task);
 
-    com.lifeonwalden.springscheduling.CronTrigger trigger2 =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger002", "CronTrigger002", "0-59/10 * * * * ?");
-    TaskTriggerContext triggerContext2 = new TaskTriggerContext(trigger2);
-    IndependentTask task2 =
-        new IndependentTask("IndependentTask002", "IndependentTask002", triggerContext2, new Worker() {
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-          @Override
-          public void doJob(Map<String, Object> context) {
-            long id = System.currentTimeMillis();
-            System.out.println(id + " START @" + new Date());
-            System.out.println("worker2 is running");
-            try {
-              Thread.sleep(new Double(Math.random() * 50000).longValue());
-            } catch (InterruptedException e) {
-              e.printStackTrace();
+    @Test
+    public void runIndependentTaskWithCrush() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        scheduler.setPoolSize(10);
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                try {
+                    Thread.sleep(new Double(Math.random() * 50000).longValue());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            System.out.println(id + " END @" + new Date());
-          }
         });
-    scheduler.schedule(task2);
+        scheduler.schedule(task);
 
-    try {
-      Thread.sleep(60000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
+        com.lifeonwalden.springscheduling.CronTrigger trigger2 =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger002", "CronTrigger002", "0-59/10 * * * * ?");
+        TaskTriggerContext triggerContext2 = new TaskTriggerContext(trigger2);
+        IndependentTask task2 = new IndependentTask("IndependentTask002", "IndependentTask002", triggerContext2, new Worker() {
 
-  @Test
-  public void runIndependentTaskWithError() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    IndependentTask task =
-        new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
-
-          @Override
-          public void doJob(Map<String, Object> context) {
-            System.out.println("I am bad boy");
-            throw new RuntimeException();
-          }
-        });
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runIndependentTaskWithErrorWithRetry() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/15 * * 28 8 ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    IndependentTask task =
-        new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
-
-          @Override
-          public void doJob(Map<String, Object> context) {
-            System.out.println("START @" + new Date());
-            System.out.println("I am bad boy");
-            if (Math.random() * 10 > 3) {
-              System.out.println("ERROR @" + new Date());
-              throw new RuntimeException();
-            } else {
-              System.out.println("END @" + new Date());
+            @Override
+            public void doJob(Map<String, Object> context) {
+                try {
+                    Thread.sleep(new Double(Math.random() * 50000).longValue());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-          }
         });
-    task.setCanRetry(true);
-    task.setRetryAfter(10);
-    scheduler.schedule(task);
+        scheduler.schedule(task2);
 
-    try {
-      Thread.sleep(120000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
-  }
 
-  @Test
-  public void runIndependentTaskWithMonitor() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext,
-        new MonitorImpl(), new WorkImpl());
-    scheduler.schedule(task);
+    @Test
+    public void runIndependentTaskWithError() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
 
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runIndependentTaskWithMonitorError() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext,
-        new MonitorImpl(), new Worker() {
-
-          @Override
-          public void doJob(Map<String, Object> context) {
-            System.out.println("I am bad boy");
-            throw new RuntimeException();
-          }
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("I am bad boy");
+                throw new RuntimeException();
+            }
         });
-    scheduler.schedule(task);
+        scheduler.schedule(task);
 
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runChainTask() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
-
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 001 is running.");
-
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runChainTaskWithError() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
-
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("bad boy is running.");
-        throw new RuntimeException();
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runChainTaskWithMonitor() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
-
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 001 is running.");
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    ChainTask task =
-        new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runChainTaskWithMonitorWithError() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
-
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("bad boy is running.");
-        throw new RuntimeException("bad boy don't finish work.");
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    ChainTask task =
-        new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runChainTaskWithMonitorWithErrorWithRetry() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/45 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
-
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("START @" + new Date());
-        System.out.println("I am bad boy");
-        if (Math.random() * 10 > 4) {
-          System.out.println("ERROR @" + new Date());
-          throw new RuntimeException();
-        } else {
-          System.out.println("END @" + new Date());
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    ChainTask task =
-        new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
-    task.setCanRetry(true);
-    task.setRetryAfter(10);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(300000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
     }
-  }
 
+    @Test
+    public void runIndependentTaskWithErrorWithRetry() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/15 * * 28 8 ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Worker() {
 
-  @Test
-  public void runChainTaskWithMonitorWithErrorWithRetryWithFullNew() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/45 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("START @" + new Date());
+                System.out.println("I am bad boy");
+                if (Math.random() * 10 > 3) {
+                    System.out.println("ERROR @" + new Date());
+                    throw new RuntimeException();
+                } else {
+                    System.out.println("END @" + new Date());
+                }
+            }
+        });
+        task.setCanRetry(true);
+        task.setRetryAfter(10);
+        scheduler.schedule(task);
 
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("START @" + new Date());
-        System.out.println("I am bad boy");
-        if (Math.random() * 10 > 4) {
-          System.out.println("ERROR @" + new Date());
-          throw new RuntimeException();
-        } else {
-          System.out.println("END @" + new Date());
+        try {
+            Thread.sleep(120000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    ChainTask task =
-        new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
-    task.setCanRetry(true);
-    task.setRetryAfter(10);
-    task.setAlwaysFromBeginning(true);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(300000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
     }
-  }
 
-  @Test
-  public void runDependentChainTask() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
+    @Test
+    public void runIndependentTaskWithMonitor() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), new WorkImpl());
+        scheduler.schedule(task);
 
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 001 is running.");
-
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    DependentChainTask task =
-        new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runDependentChainTaskWithError() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
-
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("bad boy is running.");
-        throw new RuntimeException();
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    DependentChainTask task =
-        new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void runDependentChainTaskWithErrorWithRetry() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/45 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
-
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 001 is running.");
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("START @" + new Date());
-        System.out.println("I am bad boy");
-        if (Math.random() * 10 > 4) {
-          System.out.println("ERROR @" + new Date());
-          throw new RuntimeException();
-        } else {
-          System.out.println("END @" + new Date());
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-
-      }
-    });
-    DependentChainTask task =
-        new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
-    task.setCanRetry(true);
-    task.setRetryAfter(10);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(300000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
     }
-  }
 
-  @Test
-  public void runDependentChainTaskWithMonitor() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
+    @Test
+    public void runIndependentTaskWithMonitorError() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), new Worker() {
 
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 001 is running.");
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("I am bad boy");
+                throw new RuntimeException();
+            }
+        });
+        scheduler.schedule(task);
 
-      }
-    });
-    DependentChainTask task =
-        new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
-    scheduler.schedule(task);
-
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
-  }
 
-  @Test
-  public void runDependentChainTaskWithMonitorWithError() {
-    ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
-    scheduler.initialize();
-    com.lifeonwalden.springscheduling.CronTrigger trigger =
-        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
-    TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
-    List<Worker> taskList = new ArrayList<Worker>();
-    taskList.add(new Worker() {
+    @Test
+    public void runChainTask() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
 
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("bad boy is running.");
-        throw new RuntimeException("bad boy don't finish work.");
-      }
-    });
-    taskList.add(new Worker() {
-      @Override
-      public void doJob(Map<String, Object> context) {
-        System.out.println("worker 002 is running.");
-      }
-    });
-    DependentChainTask task =
-        new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
-    scheduler.schedule(task);
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 001 is running.");
 
-    try {
-      Thread.sleep(30000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
-  }
+
+    @Test
+    public void runChainTaskWithError() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("bad boy is running.");
+                throw new RuntimeException();
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runChainTaskWithMonitor() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 001 is running.");
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runChainTaskWithMonitorWithError() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("bad boy is running.");
+                throw new RuntimeException("bad boy don't finish work.");
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runChainTaskWithMonitorWithErrorWithRetry() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/45 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("START @" + new Date());
+                System.out.println("I am bad boy");
+                if (Math.random() * 10 > 4) {
+                    System.out.println("ERROR @" + new Date());
+                    throw new RuntimeException();
+                } else {
+                    System.out.println("END @" + new Date());
+                }
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
+        task.setCanRetry(true);
+        task.setRetryAfter(10);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(300000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void runChainTaskWithMonitorWithErrorWithRetryWithFullNew() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/45 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("START @" + new Date());
+                System.out.println("I am bad boy");
+                if (Math.random() * 10 > 4) {
+                    System.out.println("ERROR @" + new Date());
+                    throw new RuntimeException();
+                } else {
+                    System.out.println("END @" + new Date());
+                }
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        ChainTask task = new ChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
+        task.setCanRetry(true);
+        task.setRetryAfter(10);
+        task.setAlwaysFromBeginning(true);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(300000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runDependentChainTask() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 001 is running.");
+
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        DependentChainTask task = new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runDependentChainTaskWithError() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("bad boy is running.");
+                throw new RuntimeException();
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        DependentChainTask task = new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runDependentChainTaskWithErrorWithRetry() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/45 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 001 is running.");
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("START @" + new Date());
+                System.out.println("I am bad boy");
+                if (Math.random() * 10 > 4) {
+                    System.out.println("ERROR @" + new Date());
+                    throw new RuntimeException();
+                } else {
+                    System.out.println("END @" + new Date());
+                }
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        DependentChainTask task = new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, taskList);
+        task.setCanRetry(true);
+        task.setRetryAfter(10);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(300000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runDependentChainTaskWithMonitor() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 001 is running.");
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+
+            }
+        });
+        DependentChainTask task = new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runDependentChainTaskWithMonitorWithError() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                        new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/5 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        List<Worker> taskList = new ArrayList<Worker>();
+        taskList.add(new Worker() {
+
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("bad boy is running.");
+                throw new RuntimeException("bad boy don't finish work.");
+            }
+        });
+        taskList.add(new Worker() {
+            @Override
+            public void doJob(Map<String, Object> context) {
+                System.out.println("worker 002 is running.");
+            }
+        });
+        DependentChainTask task = new DependentChainTask("IndependentTask001", "IndependentTask001", triggerContext, new MonitorImpl(), taskList);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

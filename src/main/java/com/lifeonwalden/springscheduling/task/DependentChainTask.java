@@ -15,6 +15,7 @@ package com.lifeonwalden.springscheduling.task;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,9 +57,18 @@ public class DependentChainTask extends Task {
 
         retryIndex = -1;
         int size = workerList.size();
+        Worker worker = null;
         for (int i = _retryIndex; i < size; i++) {
             try {
-                workerList.get(i).doJob(param);
+                worker = workerList.get(i);
+
+                String clzName = worker.getClass().getSimpleName();
+                logger.info("Worker [{}] Start", clzName);
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                worker.doJob(param);
+                stopWatch.stop();
+                logger.info("Worker [{}] End, the task cost time :  {}", clzName, stopWatch.getTime());
             } catch (Throwable e) {
                 logger.error("Work failed", e);
 
@@ -69,5 +79,4 @@ public class DependentChainTask extends Task {
 
         return null;
     }
-
 }
