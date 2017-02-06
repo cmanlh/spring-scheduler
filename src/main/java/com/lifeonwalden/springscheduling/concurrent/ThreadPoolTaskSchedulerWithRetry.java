@@ -116,4 +116,8 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
             work.doJob(param);
         }
     }
+
+    public Work getWork(String workId) {
+        return workMap.get(workId);
+    }
 }
