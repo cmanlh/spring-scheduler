@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lifeonwalden</groupId>
 	<artifactId>spring-scheduler</artifactId>
-	<version>0.0.8</version>
+	<version>0.0.9</version>
 	<packaging>jar</packaging>
 	<name>spring-scheduler</name>
 	<description>A persistence scheduler system based on Spring framework</description>
