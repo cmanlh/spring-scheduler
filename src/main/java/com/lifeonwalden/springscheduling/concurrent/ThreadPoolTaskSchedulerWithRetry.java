@@ -65,6 +65,10 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
         return task.schedule();
     }
 
+    public Task getTask(String taskId) {
+        return taskMap.get(taskId);
+    }
+
     public void addWork(Work work) {
         logger.info("Load work [{}]", work.getName());
 
