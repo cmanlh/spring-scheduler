@@ -150,6 +150,10 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
         return triggerContext;
     }
 
+    public void setTriggerContext(TaskTriggerContext triggerContext) {
+        this.triggerContext = triggerContext;
+    }
+
     public BaseTrigger getTrigger() {
         return triggerContext.getTrigger();
     }
