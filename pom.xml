@@ -81,9 +81,9 @@
 	</build>
 	<scm>
 		<tag>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags</tag>
-		<url>https://github.com/cmanlh/spring-scheduler.git/tags/spring-scheduler-0.1.0</url>
-		<connection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags/spring-scheduler-0.1.0</connection>
-		<developerConnection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags/spring-scheduler-0.1.0</developerConnection>
+		<url>https://github.com/cmanlh/spring-scheduler.git/tags/0.1.1</url>
+		<connection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags/0.1.1</connection>
+		<developerConnection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags/0.1.1</developerConnection>
 	</scm>
 
 	<distributionManagement>
