@@ -83,6 +83,7 @@
 		<url>https://github.com/cmanlh/spring-scheduler.git</url>
 		<connection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/trunk</connection>
 		<developerConnection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/trunk</developerConnection>
+		<tag>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags</tag>
 	</scm>
 
 	<distributionManagement>
