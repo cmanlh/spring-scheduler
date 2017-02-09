@@ -89,7 +89,7 @@
 	<distributionManagement>
 		<repository>
 			<id>maven-repository</id>
-			<url>${maven.repository}</url>
+			<url>file://${maven.repository}</url>
 		</repository>
 	</distributionManagement>
 </project>
