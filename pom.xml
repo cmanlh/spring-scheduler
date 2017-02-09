@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.lifeonwalden</groupId>
 	<artifactId>spring-scheduler</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.2.0</version>
 	<packaging>jar</packaging>
 	<name>spring-scheduler</name>
 	<description>A persistence scheduler system based on Spring framework</description>
@@ -81,9 +81,9 @@
 	</build>
 	<scm>
 		<tag>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags</tag>
-		<url>https://github.com/cmanlh/spring-scheduler.git</url>
-		<connection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/trunk</connection>
-		<developerConnection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/trunk</developerConnection>
+		<url>https://github.com/cmanlh/spring-scheduler.git/tags/spring-scheduler-0.2.0</url>
+		<connection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags/spring-scheduler-0.2.0</connection>
+		<developerConnection>scm:svn:https://github.com/cmanlh/spring-scheduler.git/tags/spring-scheduler-0.2.0</developerConnection>
 	</scm>
 
 	<distributionManagement>
