@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.MessageFormatMessage;
@@ -93,8 +92,8 @@ public class Work implements Runnable {
             if (TaskStatusEnum.COMPLETED == status) {
                 event.setType(TaskEventType.COMPELETE).setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam());
             } else {
-                event.setType(TaskEventType.FAIL).setFailPrintList(Arrays.asList(ExceptionUtils.getStackTrace(error)))
-                                .setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam());
+                event.setType(TaskEventType.FAIL).setFailPrintList(Arrays.asList(error.getMessage())).setStartTime(startTaskEvent.getHappendTime())
+                                .setParam(startTaskEvent.getParam());
             }
 
             monitor.notificate(event);

@@ -27,7 +27,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -211,7 +210,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
 
             this.status = TaskStatusEnum.FAILED;
 
-            failPrintList = Arrays.asList(ExceptionUtils.getStackTrace(e));
+            failPrintList = Arrays.asList(e.getMessage());
         }
         completionTime = new Date();
         nextExecutionTime = getTrigger().nextExecutionTime(triggerContext);
