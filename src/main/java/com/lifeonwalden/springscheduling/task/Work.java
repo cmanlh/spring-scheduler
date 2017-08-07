@@ -1,22 +1,21 @@
 package com.lifeonwalden.springscheduling.task;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-
+import com.lifeonwalden.springscheduling.monitor.Monitor;
+import com.lifeonwalden.springscheduling.monitor.TaskEvent;
+import com.lifeonwalden.springscheduling.monitor.TaskEventType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.MessageFormatMessage;
 
-import com.lifeonwalden.springscheduling.monitor.Monitor;
-import com.lifeonwalden.springscheduling.monitor.TaskEvent;
-import com.lifeonwalden.springscheduling.monitor.TaskEventType;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 临时性工作，一般手动触发用于解决一些非经常性事务工作
- * 
- * @author HongLu
  *
+ * @author HongLu
  */
 public class Work implements Runnable {
     private final static Logger logger = LogManager.getLogger(Work.class);
@@ -63,21 +62,34 @@ public class Work implements Runnable {
     }
 
     public void doJob(Map<String, Object> param) {
-        setParam(param);
-        run();
+        _run(param);
     }
 
     @Override
     public void run() {
+        _run(null);
+    }
+
+    private void _run(Map<String, Object> param) {
+        Map<String, Object> _param;
+        if (null == param) {
+            if (null == this.param) {
+                _param = new HashMap<>();
+            } else {
+                _param = this.param;
+            }
+        } else {
+            _param = param;
+        }
         TaskEvent startTaskEvent = new TaskEvent();
         if (null != monitor) {
-            monitor.notificate(startTaskEvent.setHappendTime(new Date()).setTaskId(this.id).setType(TaskEventType.START).setParam(param));
+            monitor.notificate(startTaskEvent.setHappendTime(new Date()).setTaskId(this.id).setType(TaskEventType.START).setParam(_param));
         }
 
         TaskStatusEnum status = TaskStatusEnum.COMPLETED;
         Throwable error = null;
         try {
-            this.worker.doJob(param);
+            this.worker.doJob(_param);
         } catch (Throwable e) {
             logger.error(new MessageFormatMessage("Work is failed : [{}] {}", this.name, this.id), e);
 
@@ -93,7 +105,7 @@ public class Work implements Runnable {
                 event.setType(TaskEventType.COMPELETE).setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam());
             } else {
                 event.setType(TaskEventType.FAIL).setFailPrintList(Arrays.asList(error.getMessage())).setStartTime(startTaskEvent.getHappendTime())
-                                .setParam(startTaskEvent.getParam());
+                        .setParam(startTaskEvent.getParam());
             }
 
             monitor.notificate(event);
