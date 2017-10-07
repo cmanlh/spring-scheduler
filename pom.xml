@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.lifeonwalden</groupId>
     <artifactId>spring-scheduler</artifactId>
@@ -89,8 +90,7 @@
         <repository>
             <id>bintray-cmanlh</id>
             <name>cmanlh-spring-scheduler</name>
-            <url>https://api.bintray.com/maven/cmanlh/spring-scheduler/;publish=1
-            </url>
+            <url>https://api.bintray.com/maven/cmanlh/spring-scheduler</url>
         </repository>
     </distributionManagement>
 </project>
