@@ -88,9 +88,9 @@
 
     <distributionManagement>
         <repository>
-            <id>bintray-cmanlh</id>
-            <name>cmanlh-spring-scheduler</name>
-            <url>https://api.bintray.com/maven/cmanlh/spring-scheduler</url>
+            <id>bintray-cmanlh-maven</id>
+            <name>cmanlh-maven</name>
+            <url>https://api.bintray.com/maven/cmanlh/maven/spring-scheduler/;publish=1</url>
         </repository>
     </distributionManagement>
 </project>
