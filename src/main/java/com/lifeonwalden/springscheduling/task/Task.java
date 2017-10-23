@@ -1,70 +1,53 @@
 /**
  * Copyright 2016 HongLu
- * 
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- * 
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
 package com.lifeonwalden.springscheduling.task;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import org.apache.commons.lang3.time.StopWatch;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.lifeonwalden.springscheduling.BaseTrigger;
 import com.lifeonwalden.springscheduling.monitor.Monitor;
 import com.lifeonwalden.springscheduling.monitor.TaskEvent;
 import com.lifeonwalden.springscheduling.monitor.TaskEventType;
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 public abstract class Task implements Runnable, ScheduledFuture<Object> {
     private final static Logger logger = LogManager.getLogger(Task.class);
-
-    protected String id;
-
-    protected String name;
-
-    protected Map<String, Object> param;
-
-    protected TaskTriggerContext triggerContext;
-
-    protected Monitor monitor;
-
-    protected boolean canRetry = false;
-
-    protected boolean stopped = false;
-
-    /** always retry from the beginning of worker list */
-    protected boolean alwaysFromBeginning = false;
-
-    /** retry after 30 Minutes */
-    protected long retryAfter = 1800;
-
-    protected ScheduledExecutorService executor;
-
-    protected TaskStatusEnum status = TaskStatusEnum.WAITING;
-
     private final Object triggerContextMonitor = new Object();
-
+    protected String id;
+    protected String name;
+    protected Map<String, Object> param;
+    protected TaskTriggerContext triggerContext;
+    protected Monitor monitor;
+    protected boolean canRetry = false;
+    protected int retryTimes = 0;
+    protected int maxRetryTimes = 3;
+    protected boolean stopped = false;
+    /**
+     * always retry from the beginning of worker list
+     */
+    protected boolean alwaysFromBeginning = false;
+    /**
+     * retry after 30 Minutes
+     */
+    protected long retryAfter = 1800;
+    protected ScheduledExecutorService executor;
+    protected TaskStatusEnum status = TaskStatusEnum.WAITING;
     private ScheduledFuture<?> currentFuture;
 
     public Task(String id, String name, TaskTriggerContext triggerContext) {
@@ -90,8 +73,28 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
         return this;
     }
 
+    public int getMaxRetryTimes() {
+        return maxRetryTimes;
+    }
+
+    public void setMaxRetryTimes(int maxRetryTimes) {
+        this.maxRetryTimes = maxRetryTimes;
+    }
+
+    public int getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
     public boolean isCanRetry() {
         return canRetry;
+    }
+
+    public void setCanRetry(boolean canRetry) {
+        this.canRetry = canRetry;
     }
 
     public boolean isAlwaysFromBeginning() {
@@ -102,17 +105,13 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
         this.alwaysFromBeginning = alwaysFromBeginning;
     }
 
-    public void setCanRetry(boolean canRetry) {
-        this.canRetry = canRetry;
-    }
-
     public long getRetryAfter() {
         return retryAfter;
     }
 
     /**
      * retry after {retryAfter} seconds
-     * 
+     *
      * @param retryAfter
      */
     public void setRetryAfter(long retryAfter) {
@@ -182,8 +181,8 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
         final String taskId = this.id;
         try {
             Map<String, Object> _param =
-                            null != param ? param : (null == this.param ? new WeakHashMap<String, Object>() : new WeakHashMap<String, Object>(
-                                            this.param));
+                    null != param ? param : (null == this.param ? new WeakHashMap<String, Object>() : new WeakHashMap<String, Object>(
+                            this.param));
             actualExecutionTime = new Date();
             if (null != monitor) {
                 final Date _actualExecutionTime = actualExecutionTime;
@@ -192,7 +191,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
                     @Override
                     public void run() {
                         monitor.notificate(startTaskEvent.setHappendTime(_actualExecutionTime).setTaskId(taskId).setType(TaskEventType.START)
-                                        .setParam(_param));
+                                .setParam(_param));
                     }
                 }).start();
             }
@@ -215,8 +214,11 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
         completionTime = new Date();
         nextExecutionTime = getTrigger().nextExecutionTime(triggerContext);
 
-        if (null != failPrintList && this.canRetry) {
+        if (null != failPrintList && this.canRetry && (0 == this.maxRetryTimes || this.maxRetryTimes >= this.retryTimes)) {
             nextExecutionTime = Date.from(LocalDateTime.now().plus(this.retryAfter, ChronoUnit.SECONDS).atZone(ZoneId.systemDefault()).toInstant());
+            this.retryTimes++;
+        } else {
+            this.retryTimes = 0;
         }
         if (null != monitor) {
             final TaskStatusEnum taskStatus = this.status;
@@ -227,9 +229,9 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
                 @Override
                 public void run() {
                     monitor.notificate(new TaskEvent().setHappendTime(new Date()).setTaskId(taskId)
-                                    .setType(TaskStatusEnum.COMPLETED == taskStatus ? TaskEventType.COMPELETE : TaskEventType.FAIL)
-                                    .setFailPrintList(_failPrintList).setNextExecutionTime(_nextExecutionTime)
-                                    .setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam()));
+                            .setType(TaskStatusEnum.COMPLETED == taskStatus ? TaskEventType.COMPELETE : TaskEventType.FAIL)
+                            .setFailPrintList(_failPrintList).setNextExecutionTime(_nextExecutionTime)
+                            .setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam()));
                 }
             }).start();
         }
