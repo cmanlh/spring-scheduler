@@ -115,7 +115,7 @@ public class TaskRunningTest {
         ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
         scheduler.initialize();
         com.lifeonwalden.springscheduling.CronTrigger trigger =
-                new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/15 * * 28 8 ?");
+                new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/15 * * * * ?");
         TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
         IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Work("IndependentWork001", "IndependentWork001", (Map<String, Object> context) -> {
             System.out.println("START @" + new Date());
@@ -130,10 +130,35 @@ public class TaskRunningTest {
         }));
         task.setCanRetry(true);
         task.setRetryAfter(10);
+        task.setMaxRetryTimes(0);
         scheduler.schedule(task);
 
         try {
             Thread.sleep(120000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void runIndependentTaskWithErrorWithRetryLimitTimes() {
+        ThreadPoolTaskSchedulerWithRetry scheduler = new ThreadPoolTaskSchedulerWithRetry();
+        scheduler.initialize();
+        com.lifeonwalden.springscheduling.CronTrigger trigger =
+                new com.lifeonwalden.springscheduling.CronTrigger("CronTrigger001", "CronTrigger001", "0-59/50 * * * * ?");
+        TaskTriggerContext triggerContext = new TaskTriggerContext(trigger);
+        IndependentTask task = new IndependentTask("IndependentTask001", "IndependentTask001", triggerContext, new Work("IndependentWork001", "IndependentWork001", (Map<String, Object> context) -> {
+            System.out.println("START @" + new Date());
+            System.out.println("I am bad boy");
+            throw new RuntimeException("Failed one time.");
+        }, (TaskEvent event) -> {
+        }));
+        task.setCanRetry(true);
+        task.setRetryAfter(5);
+        scheduler.schedule(task);
+
+        try {
+            Thread.sleep(60000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -296,7 +321,7 @@ public class TaskRunningTest {
             System.out.println("I am bad boy");
             if (Math.random() * 10 > 4) {
                 System.out.println("ERROR @" + new Date());
-                throw new RuntimeException();
+                throw new RuntimeException("Failed one time");
             } else {
                 System.out.println("END @" + new Date());
             }

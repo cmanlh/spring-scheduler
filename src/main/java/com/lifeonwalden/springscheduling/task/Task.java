@@ -214,9 +214,10 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
         completionTime = new Date();
         nextExecutionTime = getTrigger().nextExecutionTime(triggerContext);
 
-        if (null != failPrintList && this.canRetry && (0 == this.maxRetryTimes || this.maxRetryTimes >= this.retryTimes)) {
+        if (null != failPrintList && this.canRetry && (0 == this.maxRetryTimes || this.maxRetryTimes > this.retryTimes)) {
             nextExecutionTime = Date.from(LocalDateTime.now().plus(this.retryAfter, ChronoUnit.SECONDS).atZone(ZoneId.systemDefault()).toInstant());
             this.retryTimes++;
+            logger.info("Task {} going to retry the {} time.", this.name, this.retryTimes);
         } else {
             this.retryTimes = 0;
         }

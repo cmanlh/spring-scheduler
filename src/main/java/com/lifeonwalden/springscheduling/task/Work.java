@@ -5,7 +5,7 @@ import com.lifeonwalden.springscheduling.monitor.TaskEvent;
 import com.lifeonwalden.springscheduling.monitor.TaskEventType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.MessageFormatMessage;
+import org.apache.logging.log4j.message.FormattedMessage;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -91,7 +91,7 @@ public class Work implements Runnable {
         try {
             this.worker.doJob(_param);
         } catch (Throwable e) {
-            logger.error(new MessageFormatMessage("Work is failed : [{}] {}", this.name, this.id), e);
+            logger.error(new FormattedMessage("Work execute failed - name:{}, id:{}", this.name, this.id), e);
 
             status = TaskStatusEnum.FAILED;
             error = e;
@@ -109,6 +109,10 @@ public class Work implements Runnable {
             }
 
             monitor.notificate(event);
+        }
+
+        if (null != error) {
+            throw new RuntimeException(error);
         }
     }
 
