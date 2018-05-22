@@ -24,7 +24,6 @@ import java.util.Map;
  * work do the job one after another, but with dependences between them
  *
  * @author HongLu
- *
  */
 public class DependentChainTask extends Task {
     private final static Logger logger = LogManager.getLogger(DependentChainTask.class);
@@ -71,7 +70,11 @@ public class DependentChainTask extends Task {
             } catch (Throwable e) {
                 logger.error("Work failed", e);
 
-                retryIndex = i;
+                if (this.maxRetryTimes <= this.retryTimes) {
+                    retryIndex = -1;
+                } else {
+                    retryIndex = i;
+                }
                 throw e;
             }
         }
