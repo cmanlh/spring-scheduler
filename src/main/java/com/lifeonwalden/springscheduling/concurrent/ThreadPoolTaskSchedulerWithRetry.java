@@ -1,19 +1,13 @@
 package com.lifeonwalden.springscheduling.concurrent;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-
+import com.lifeonwalden.springscheduling.task.Task;
+import com.lifeonwalden.springscheduling.task.Work;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.concurrent.ExecutorConfigurationSupport;
 
-import com.lifeonwalden.springscheduling.task.Task;
-import com.lifeonwalden.springscheduling.task.Work;
+import java.util.Map;
+import java.util.concurrent.*;
 
 public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSupport {
     private final static Logger logger = LogManager.getLogger(ThreadPoolTaskSchedulerWithRetry.class);
@@ -28,17 +22,16 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
 
     private ConcurrentHashMap<String, Work> workMap = new ConcurrentHashMap<>();
 
-    public void setPoolSize(int poolSize) {
-        this.poolSize = poolSize;
-        this.scheduledExecutor.setCorePoolSize(poolSize);
-    }
-
     public int getPoolSize() {
         if (this.scheduledExecutor == null) {
-            // Not initialized yet: assume initial pool size.
             return this.poolSize;
         }
         return getScheduledThreadPoolExecutor().getPoolSize();
+    }
+
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
+        this.scheduledExecutor.setCorePoolSize(poolSize);
     }
 
     @Override
@@ -94,10 +87,10 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
 
     /**
      * only accept work
-     * 
+     *
      * @param taskId
      * @param param
-     * @param async 是否异步执行
+     * @param async  是否异步执行
      */
     public void execute(String taskId, Map<String, Object> param, boolean async) {
         Work work = null;
