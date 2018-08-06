@@ -13,6 +13,7 @@
 package com.lifeonwalden.springscheduling.task;
 
 import com.lifeonwalden.springscheduling.BaseTrigger;
+import com.lifeonwalden.springscheduling.bean.ExecutionInfo;
 import com.lifeonwalden.springscheduling.monitor.Monitor;
 import com.lifeonwalden.springscheduling.monitor.TaskEvent;
 import com.lifeonwalden.springscheduling.monitor.TaskEventType;
@@ -20,9 +21,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -175,32 +173,35 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
     }
 
     private void _run(Map<String, Object> param) {
-        Date nextExecutionTime = null, actualExecutionTime = null, completionTime = null;
+        ExecutionInfo executionInfo = _execute(param, false);
+
+        synchronized (this.triggerContextMonitor) {
+            this.triggerContext.update(executionInfo.getNextExecutionTime(), executionInfo.getActualExecutionTime(), executionInfo.getCompletionTime());
+            if (!this.currentFuture.isCancelled()) {
+                schedule();
+            }
+        }
+    }
+
+    private ExecutionInfo _execute(Map<String, Object> param, boolean isOneTimeExecution) {
+        ExecutionInfo executionInfo = new ExecutionInfo();
+
         List<String> failPrintList = null;
         TaskEvent startTaskEvent = new TaskEvent();
         final String taskId = this.id;
         try {
-            Map<String, Object> _param =
-                    null != param ? param : (null == this.param ? new WeakHashMap<String, Object>() : new WeakHashMap<String, Object>(
-                            this.param));
-            actualExecutionTime = new Date();
-            if (null != monitor) {
-                final Date _actualExecutionTime = actualExecutionTime;
-                new Thread(new Runnable() {
+            executionInfo.setActualExecutionTime(new Date());
 
-                    @Override
-                    public void run() {
-                        monitor.notificate(startTaskEvent.setHappendTime(_actualExecutionTime).setTaskId(taskId).setType(TaskEventType.START)
-                                .setParam(_param));
-                    }
-                }).start();
+            Map<String, Object> _param = null != param ? param : (null == this.param ? new WeakHashMap<>() : new WeakHashMap<>(this.param));
+            if (null != monitor) {
+                new Thread(() -> monitor.notificate(startTaskEvent.setHappendTime(executionInfo.getActualExecutionTime()).setTaskId(taskId).setType(TaskEventType.START).setParam(_param))).start();
             }
 
             this.status = TaskStatusEnum.RUNNING;
             logger.info("Task [{}] Start", this.name);
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            failPrintList = doJob(_param);
+            failPrintList = doJob(_param, isOneTimeExecution);
             stopWatch.stop();
             logger.info("Task [{}] End, the task cost time :  {}", this.name, stopWatch.getTime());
             this.status = TaskStatusEnum.COMPLETED;
@@ -211,41 +212,24 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
 
             failPrintList = Arrays.asList(e.getMessage());
         }
-        completionTime = new Date();
-        nextExecutionTime = getTrigger().nextExecutionTime(triggerContext);
+        executionInfo.setCompletionTime(new Date());
+        executionInfo.setNextExecutionTime(getTrigger().nextExecutionTime(triggerContext));
+        executionInfo.setSuccess(TaskStatusEnum.COMPLETED == this.status);
 
-        if (null != failPrintList && this.canRetry && (0 == this.maxRetryTimes || this.maxRetryTimes > this.retryTimes)) {
-            nextExecutionTime = Date.from(LocalDateTime.now().plus(this.retryAfter, ChronoUnit.SECONDS).atZone(ZoneId.systemDefault()).toInstant());
-            this.retryTimes++;
-            logger.info("Task {} going to retry the {} time.", this.name, this.retryTimes);
-        } else {
-            this.retryTimes = 0;
-        }
         if (null != monitor) {
-            final TaskStatusEnum taskStatus = this.status;
             final List<String> _failPrintList = failPrintList;
-            final Date _nextExecutionTime = nextExecutionTime;
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    monitor.notificate(new TaskEvent().setHappendTime(new Date()).setTaskId(taskId)
-                            .setType(TaskStatusEnum.COMPLETED == taskStatus ? TaskEventType.COMPELETE : TaskEventType.FAIL)
-                            .setFailPrintList(_failPrintList).setNextExecutionTime(_nextExecutionTime)
-                            .setStartTime(startTaskEvent.getHappendTime()).setParam(startTaskEvent.getParam()));
-                }
-            }).start();
+            new Thread(() -> monitor.notificate(
+                    new TaskEvent().setHappendTime(executionInfo.getCompletionTime()).setTaskId(taskId)
+                            .setType(executionInfo.isSuccess() ? TaskEventType.COMPELETE : TaskEventType.FAIL)
+                            .setFailPrintList(_failPrintList).setNextExecutionTime(executionInfo.getNextExecutionTime())
+                            .setStartTime(executionInfo.getActualExecutionTime()).setParam(startTaskEvent.getParam())
+            )).start();
         }
 
-        synchronized (this.triggerContextMonitor) {
-            this.triggerContext.update(nextExecutionTime, actualExecutionTime, completionTime);
-            if (!this.currentFuture.isCancelled()) {
-                schedule();
-            }
-        }
+        return executionInfo;
     }
 
-    public abstract List<String> doJob(Map<String, Object> param);
+    public abstract List<String> doJob(Map<String, Object> param, boolean isOneTimeExecution);
 
     @Override
     public void run() {

@@ -40,14 +40,13 @@ public class IndependentTask extends Task {
     }
 
     @Override
-    public List<String> doJob(Map<String, Object> param) {
-        String clzName = work.getClass().getSimpleName();
-        logger.info("Work [{}] Start", clzName);
+    public List<String> doJob(Map<String, Object> param, boolean isOneTimeExecution) {
+        logger.info("Work [{}] Start", work.getName());
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         work.doJob(param);
         stopWatch.stop();
-        logger.info("Work [{}] End, the task cost time :  {}", clzName, stopWatch.getTime());
+        logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
 
         return null;
     }

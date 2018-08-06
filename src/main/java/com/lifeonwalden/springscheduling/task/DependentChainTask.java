@@ -47,7 +47,7 @@ public class DependentChainTask extends Task {
     }
 
     @Override
-    public List<String> doJob(Map<String, Object> param) {
+    public List<String> doJob(Map<String, Object> param, boolean isOneTimeExecution) {
         int _retryIndex = 0;
         if (canRetry && !alwaysFromBeginning && -1 < retryIndex) {
             _retryIndex = retryIndex;
@@ -60,13 +60,12 @@ public class DependentChainTask extends Task {
             try {
                 work = workList.get(i);
 
-                String clzName = work.getClass().getSimpleName();
-                logger.info("Work [{}] Start", clzName);
+                logger.info("Work [{}] Start", work.getName());
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
                 work.doJob(param);
                 stopWatch.stop();
-                logger.info("Work [{}] End, the task cost time :  {}", clzName, stopWatch.getTime());
+                logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
             } catch (Throwable e) {
                 logger.error("Work failed", e);
 
