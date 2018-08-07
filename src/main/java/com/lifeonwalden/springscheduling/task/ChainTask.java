@@ -49,14 +49,47 @@ public class ChainTask extends Task {
 
     @Override
     public List<String> doJob(Map<String, Object> param, boolean isOneTimeExecution) {
+        if (isOneTimeExecution) {
+            return runOneTimeJob(param);
+        } else {
+            return runPlanJob(param);
+        }
+    }
+
+    private List<String> runOneTimeJob(Map<String, Object> param) {
+        List<String> failPrintList = new ArrayList<>();
+
+        for (Work work : workList) {
+            try {
+                logger.info("Work [{}] Start", work.getName());
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                work.doJob(param);
+                stopWatch.stop();
+                logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
+            } catch (Exception e) {
+                logger.error("Work failed", e);
+
+                failPrintList.add(e.getMessage());
+            }
+        }
+
+        return failPrintList.isEmpty() ? null : failPrintList;
+    }
+
+    private List<String> runPlanJob(Map<String, Object> param) {
         List<String> failPrintList = new ArrayList<>();
 
         List<Work> _workList = workList;
         if (canRetry && !alwaysFromBeginning && !retryList.isEmpty()) {
-            _workList = retryList;
+            if (retryTimes < maxRetryTimes) {
+                _workList = retryList;
+            } else {
+                retryList.clear();
+            }
         }
 
-        retryList = new ArrayList<Work>();
+        retryList = new ArrayList<>();
         for (Work work : _workList) {
             try {
                 logger.info("Work [{}] Start", work.getName());
@@ -65,14 +98,14 @@ public class ChainTask extends Task {
                 work.doJob(param);
                 stopWatch.stop();
                 logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 logger.error("Work failed", e);
 
                 retryList.add(work);
                 failPrintList.add(e.getMessage());
             }
         }
+
         return failPrintList.isEmpty() ? null : failPrintList;
     }
-
 }

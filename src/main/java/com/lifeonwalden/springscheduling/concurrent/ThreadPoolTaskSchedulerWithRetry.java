@@ -88,29 +88,46 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
     /**
      * only accept work
      *
-     * @param taskId
+     * @param workId
      * @param param
      * @param async  是否异步执行
      */
-    public void execute(String taskId, Map<String, Object> param, boolean async) {
+    public void execute(String workId, Map<String, Object> param, boolean async) {
         Work work = null;
-        if (null == taskId || taskId.length() == 0 || (work = this.workMap.get(taskId)) == null) {
-            logger.error("Can't find task for [{}]", taskId);
+        if (null == workId || workId.length() == 0 || (work = this.workMap.get(workId)) == null) {
+            logger.error("Can't find work for [{}]", workId);
 
             return;
         }
 
         if (async) {
             final Work _work = work;
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    _work.doJob(param);
-                }
-            }).start();
+            new Thread(() -> _work.doJob(param)).start();
         } else {
             work.doJob(param);
+        }
+    }
+
+    /**
+     * only accept task
+     *
+     * @param taskId
+     * @param param
+     * @param async  是否异步执行
+     */
+    public void executeTask(String taskId, Map<String, Object> param, boolean async) {
+        Task task = null;
+        if (null == taskId || taskId.length() == 0 || (task = this.taskMap.get(taskId)) == null) {
+            logger.error("Can't find task for [{}]", taskId);
+
+            return;
+        }
+
+        if (async) {
+            final Task _task = task;
+            new Thread(() -> _task.doJob(param, true)).start();
+        } else {
+            task.doJob(param, true);
         }
     }
 

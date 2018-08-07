@@ -21,6 +21,9 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -205,7 +208,7 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
             stopWatch.stop();
             logger.info("Task [{}] End, the task cost time :  {}", this.name, stopWatch.getTime());
             this.status = TaskStatusEnum.COMPLETED;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             logger.error("Task failed", e);
 
             this.status = TaskStatusEnum.FAILED;
@@ -214,6 +217,15 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
         }
         executionInfo.setCompletionTime(new Date());
         executionInfo.setNextExecutionTime(getTrigger().nextExecutionTime(triggerContext));
+        if (!isOneTimeExecution) {
+            if (null != failPrintList && this.canRetry && (0 == this.maxRetryTimes || this.maxRetryTimes > this.retryTimes)) {
+                executionInfo.setNextExecutionTime(Date.from(LocalDateTime.now().plus(this.retryAfter, ChronoUnit.SECONDS).atZone(ZoneId.systemDefault()).toInstant()));
+                this.retryTimes++;
+                logger.info("Task {} going to retry the {} time.", this.name, this.retryTimes);
+            } else {
+                this.retryTimes = 0;
+            }
+        }
         executionInfo.setSuccess(TaskStatusEnum.COMPLETED == this.status);
 
         if (null != monitor) {

@@ -48,6 +48,31 @@ public class DependentChainTask extends Task {
 
     @Override
     public List<String> doJob(Map<String, Object> param, boolean isOneTimeExecution) {
+        if (isOneTimeExecution) {
+            runOneTimeJob(param);
+        } else {
+            runPlanJob(param);
+        }
+        return null;
+    }
+
+    private void runOneTimeJob(Map<String, Object> param) {
+        for (Work work : workList) {
+            try {
+                logger.info("Work [{}] Start", work.getName());
+                StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+                work.doJob(param);
+                stopWatch.stop();
+                logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
+            } catch (Exception e) {
+                logger.error("Work failed", e);
+                throw e;
+            }
+        }
+    }
+
+    private void runPlanJob(Map<String, Object> param) {
         int _retryIndex = 0;
         if (canRetry && !alwaysFromBeginning && -1 < retryIndex) {
             _retryIndex = retryIndex;
@@ -66,7 +91,7 @@ public class DependentChainTask extends Task {
                 work.doJob(param);
                 stopWatch.stop();
                 logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 logger.error("Work failed", e);
 
                 if (this.maxRetryTimes <= this.retryTimes) {
@@ -77,7 +102,5 @@ public class DependentChainTask extends Task {
                 throw e;
             }
         }
-
-        return null;
     }
 }

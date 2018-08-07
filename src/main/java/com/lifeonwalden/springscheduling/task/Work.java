@@ -87,10 +87,10 @@ public class Work implements Runnable {
         }
 
         TaskStatusEnum status = TaskStatusEnum.COMPLETED;
-        Throwable error = null;
+        Exception error = null;
         try {
             this.worker.doJob(_param);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             logger.error(new FormattedMessage("Work execute failed - name:{}, id:{}", this.name, this.id), e);
 
             status = TaskStatusEnum.FAILED;
