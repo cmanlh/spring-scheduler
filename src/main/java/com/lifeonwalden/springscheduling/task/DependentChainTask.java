@@ -32,6 +32,8 @@ public class DependentChainTask extends Task {
 
     private int retryIndex = -1;
 
+    private Map<String, Object> retryParam;
+
     public DependentChainTask(String id, String name, TaskTriggerContext triggerContext, Monitor monitor, List<Work> workList) {
         super(id, name, triggerContext, monitor);
         this.workList = workList;
@@ -74,8 +76,10 @@ public class DependentChainTask extends Task {
 
     private void runPlanJob(Map<String, Object> param) {
         int _retryIndex = 0;
+        Map<String, Object> _param = param;
         if (canRetry && !alwaysFromBeginning && -1 < retryIndex) {
             _retryIndex = retryIndex;
+            _param = retryParam;
         }
 
         retryIndex = -1;
@@ -88,7 +92,7 @@ public class DependentChainTask extends Task {
                 logger.info("Work [{}] Start", work.getName());
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
-                work.doJob(param);
+                work.doJob(_param);
                 stopWatch.stop();
                 logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
             } catch (Exception e) {
@@ -96,7 +100,9 @@ public class DependentChainTask extends Task {
 
                 if (this.maxRetryTimes <= this.retryTimes) {
                     retryIndex = -1;
+                    retryParam = null;
                 } else {
+                    retryParam = _param;
                     retryIndex = i;
                 }
                 throw e;
