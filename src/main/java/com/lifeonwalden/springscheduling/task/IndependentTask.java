@@ -17,6 +17,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -49,5 +50,10 @@ public class IndependentTask extends Task {
         logger.info("Work [{}] End, the task cost time :  {}", work.getName(), stopWatch.getTime());
 
         return null;
+    }
+
+    @Override
+    public List<Work> getWorkList() {
+        return Arrays.asList(work);
     }
 }

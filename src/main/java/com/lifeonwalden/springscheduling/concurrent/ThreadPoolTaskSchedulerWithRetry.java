@@ -51,6 +51,9 @@ public class ThreadPoolTaskSchedulerWithRetry extends ExecutorConfigurationSuppo
 
     public ScheduledFuture<?> schedule(Task task) {
         logger.info("Load task [{}]", task.getName());
+        if (null != task.getWorkList()) {
+            task.getWorkList().forEach(work -> logger.info("Load work for task {} : {}", task.getName(), work.getName()));
+        }
 
         ScheduledThreadPoolExecutor executor = getScheduledThreadPoolExecutor();
         task.setExecutor(executor);

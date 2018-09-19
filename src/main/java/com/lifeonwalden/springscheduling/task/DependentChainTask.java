@@ -44,6 +44,7 @@ public class DependentChainTask extends Task {
         this.workList = workList;
     }
 
+    @Override
     public List<Work> getWorkList() {
         return workList;
     }

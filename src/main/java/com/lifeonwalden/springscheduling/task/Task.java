@@ -313,4 +313,6 @@ public abstract class Task implements Runnable, ScheduledFuture<Object> {
     public void setStopped(boolean stopped) {
         this.stopped = stopped;
     }
+
+    public abstract List<Work> getWorkList();
 }

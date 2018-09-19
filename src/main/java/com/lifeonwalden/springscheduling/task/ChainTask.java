@@ -43,6 +43,7 @@ public class ChainTask extends Task {
         this.workList = workList;
     }
 
+    @Override
     public List<Work> getWorkList() {
         return workList;
     }
